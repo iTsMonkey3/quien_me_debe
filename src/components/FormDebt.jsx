@@ -90,6 +90,20 @@ export function FormDebt ({onSaveDebt}) {
                         </>
                     )}
 
+                    {isPersonal && (
+                        <>
+                            <label htmlFor = "name">Nombre de a quien le debes </label> 
+                            <input 
+                                type ="text"
+                                name = "name"
+                                id = "name"
+                                placeholder = "Logan"
+                                onChange={handleInputChange}
+                            />
+                            <br/>
+                        </>
+                    )}
+
 
                     <label htmlFor = "amount">Monto de la deuda </label>
                     <input
@@ -107,11 +121,26 @@ export function FormDebt ({onSaveDebt}) {
                         name = "pay_method"
                         value = {values.pay_method}
                         onChange={handleInputChange}>
+                        <option value = "cash">Efectivo</option>
                         <option value = "credit">Credito</option>
                         <option value = "debit">Debito</option>
-                        <option value = "cash">Efectivo</option>
                     </select>
                     <br />
+
+                    {values.pay_method == "credit" && (
+                        <>
+                            <h1>Es tarjetazo</h1>
+                            <label htmlFor="credit_card">Ingresa los ultimos 4 digitos: </label>
+                            <input
+                                type = "text"
+                                name = "credit_card"
+                                id = "credit_card"
+                                placeholder= '2030'
+                                onChange={handleInputChange}
+                            />
+                            <br />
+                        </>
+                    )}
 
                     <button>Agregar deuda</button>
                     
