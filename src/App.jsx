@@ -4,6 +4,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import { FormDebt } from './components/FormDebt'
+import { DebtList } from './components/DebtList'
 
 function App() {
 
@@ -14,15 +15,12 @@ function App() {
   }
 
   return (
-    <>
+    <> 
       <FormDebt onSaveDebt={saveDebt}/>
-      <h1>
-        Golas
-      </h1>
+
       <div>
-        {debts.map((element, index) => (
-          <p key={index}>Cantidad: {element.amount_per_month}</p>
-        ))}
+        <h1>Deudas</h1>
+        <DebtList allDebts={debts}/>
       </div>
     </>
   )
