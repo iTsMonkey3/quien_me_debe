@@ -19,7 +19,8 @@ export function FormDebt({ onSaveDebt }) {
         in_installments: false,
         installments_amount: 1, 
         payday: 15,
-        due_date: ""
+        due_date: "",
+        amount_per_month: 0
     };
 
     const [values, setValues] = useState(initialValues);
@@ -40,20 +41,32 @@ export function FormDebt({ onSaveDebt }) {
     const handleForm = (event) => {
         event.preventDefault();
         
+        // 1. Aseguramos que los valores sean números reales
+        const montoTotal = parseFloat(values.amount) || 0;
+        const cantidadMeses = parseInt(values.installments_amount) || 1;
+
+        // 2. Calculamos el pago mensual redondeado a 2 decimales (ej. 333.33)
+        // Usamos values.in_installments (con "values.")
+        const pagoMensual = values.in_installments 
+            ? parseFloat((montoTotal / cantidadMeses).toFixed(2)) 
+            : 0;
+        
         const finalData = {
             ...values,
             type_debt: isPersonal ? "yo_debo" : "me_deben",
             
-            // La limpieza ahora es universal: 
-            // Si es guardado quitamos texto manual. Si es nuevo quitamos el ID.
             ...(contactMode === 'saved' 
                 ? { name: "", phone_number: "" } 
-                : { contact_id: "" })
+                : { contact_id: "" }),
+
+            // 3. Asignamos la variable ya calculada y limpiecita
+            amount_per_month: pagoMensual 
         };
 
+        // Verás en tu consola que el amount_per_month sale perfecto
         onSaveDebt(finalData);
         setValues(initialValues);
-        setContactMode('saved'); 
+        setContactMode('saved');
     };
 
     useEffect(() => {
@@ -84,25 +97,25 @@ export function FormDebt({ onSaveDebt }) {
                 <form id="debtForm" onSubmit={handleForm}>
 
                     {/* --- SECCIÓN ÚNICA DE CONTACTOS --- */}
-                    <div style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '15px' }}>
+                    <div>
                         
                         {/* El título cambia mágicamente dependiendo de lo que elijas */}
-                        <p style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>
+                        <p>
                             {isPersonal ? '¿A quién le debes?' : '¿Quién te debe?'}
                         </p>
                         
-                        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                        <div>
                             <button 
                                 type="button" 
                                 onClick={() => setContactMode('saved')}
-                                style={{ background: contactMode === 'saved' ? '#002c8b' : '#ccc', color: contactMode === 'saved' ? 'white' : 'black', padding: '5px 10px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                
                             >
                                 Contacto guardado
                             </button>
                             <button 
                                 type="button" 
                                 onClick={() => setContactMode('new')}
-                                style={{ background: contactMode === 'new' ? '#002c8b' : '#ccc', color: contactMode === 'new' ? 'white' : 'black', padding: '5px 10px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            
                             >
                                 + Nuevo contacto
                             </button>
@@ -157,7 +170,7 @@ export function FormDebt({ onSaveDebt }) {
                     <br/><br/>
 
                     {/* --- MESES VS FECHA LÍMITE --- */}
-                    <label htmlFor="in_installments" style={{ fontWeight: 'bold' }}>
+                    <label htmlFor="in_installments">
                         <input 
                             type="checkbox" name="in_installments" id="in_installments"
                             checked={values.in_installments} onChange={handleInputChange}
@@ -167,7 +180,7 @@ export function FormDebt({ onSaveDebt }) {
                     <br/>
 
                     {values.in_installments ? (
-                        <div style={{ padding: '10px', background: '#f0f0f0', color: 'black', borderRadius: '5px', marginTop: '5px', marginBottom: '15px' }}>
+                        <div>
                             <label htmlFor="installments_amount">¿A cuántos meses? </label>
                             <input
                                 type="number" name="installments_amount" id="installments_amount"
@@ -181,7 +194,7 @@ export function FormDebt({ onSaveDebt }) {
                             />
                         </div>
                     ) : (
-                        <div style={{ padding: '10px', borderLeft: '3px solid #002c8b', marginTop: '5px', marginBottom: '15px' }}>
+                        <div >
                             <label htmlFor="due_date">Fecha límite de pago (Opcional): </label>
                             <input
                                 type="date" name="due_date" id="due_date"
@@ -202,13 +215,17 @@ export function FormDebt({ onSaveDebt }) {
                     </select>
                     <br />
 
-                    {values.pay_method === "credit" && (
-                        <div style={{ marginTop: '10px' }}>
+                    {values.pay_method != "cash" && (
+                        <div>
                             <strong>Es tarjetazo 💳</strong><br/>
                             <label htmlFor="credit_card">Últimos 4 dígitos de la tarjeta: </label>
                             <input
-                                type="text" name="credit_card" id="credit_card" placeholder='2030'
-                                maxLength="4" value={values.credit_card} onChange={handleInputChange}
+                                type="text" 
+                                name="credit_card" 
+                                id="credit_card" 
+                                placeholder='2030'
+                                maxLength="4" 
+                                value={values.credit_card} onChange={handleInputChange}
                             />
                         </div>
                     )}

@@ -21,7 +21,7 @@ function App() {
       </h1>
       <div>
         {debts.map((element, index) => (
-          <p key={index}>Cantidad: {element.amount}</p>
+          <p key={index}>Cantidad: {element.amount_per_month}</p>
         ))}
       </div>
     </>
